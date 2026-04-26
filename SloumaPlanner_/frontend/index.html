@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SloumaPlanner</title>
+
+  <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.11/locales-all.global.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+</head>
+
+<body>
+<div class="layout">
+
+  <!-- ===== SIDEBAR ===== -->
+ <div class="sidebar">
+  <h2 data-i18n="appName">Slouma Planner</h2>
+  <ul>
+    <li class="active" onclick="showPage('board-page', this)">📋 <span data-i18n="board">Board</span></li>
+    <li onclick="showPage('planner-page', this)">📅 <span data-i18n="planner">Planner</span></li>
+    <li onclick="showPage('settings-page', this)">⚙️ <span data-i18n="settings">Settings</span></li>
+  </ul>
+</div>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main-content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h2 id="page-title" data-i18n="taskBoard">Task Board</h2>
+      <div class="top-actions">
+  <button onclick="openSettings()" title="Settings">
+    <i class="fa fa-cog"></i>
+  </button>
+  <button onclick="openProfile()" title="Profile">
+    <i class="fa fa-user"></i>
+  </button>
+</div>
+    </div>
+
+    <!-- ===== PAGES CONTAINER ===== -->
+    <div class="container">
+
+      <!-- ================= BOARD PAGE ================= -->
+      <div id="board-page" class="page">
+
+        <!-- <h1 data-i18n="taskBoard">Task Board</h1> -->
+        <!-- INPUT -->
+    <div class="task-input">
+  <input id="taskInput" type="text" data-i18n-placeholder="enterTask" placeholder="Enter a new task..." />
+
+  <input id="taskDateInput" type="date" />
+
+  <input id="taskAssigneeInput" type="text" placeholder="Assigned to..." />
+
+  <input id="taskProjectInput" type="text" placeholder="Project name..." />
+
+  <button id="addTaskBtn" data-i18n="addTask">Add Task</button>
+</div>
+        <!-- BOARD -->
+        <div class="board">
+
+        <div class="column">
+  <h2 class="column-title todo-title">
+    <span class="column-badge">📝</span>
+    <span data-i18n="toDo">Planned</span>
+  </h2>
+  <div id="todo" class="task-list"></div>
+</div>
+
+<div class="column">
+  <h2 class="column-title doing-title">
+    <span class="column-badge">⚙️</span>
+    <span data-i18n="doing">In Progress</span>
+  </h2>
+  <div id="doing" class="task-list"></div>
+</div>
+
+<div class="column">
+  <h2 class="column-title done-title">
+    <span class="column-badge">✅</span>
+    <span data-i18n="done">Completed</span>
+  </h2>
+  <div id="done" class="task-list"></div>
+</div>
+
+        </div>
+
+      </div>
+
+      <!-- ================= PLANNER PAGE ================= -->
+      <div id="planner-page" class="page" style="display:none;">
+       <div class="planner-toolbar">
+  <div class="planner-title-box">
+    <!-- <h1 class="planner-main-title" data-i18n="planner">Planner</h1> -->
+    <button class="planner-action-btn" onclick="addPlannerEvent()">
+  <i class="fa-solid fa-plus"></i>
+  <span data-i18n="addEvent">Add Event</span>
+</button>
+  </div>
+
+  <button class="year-view-btn" onclick="showYearView()" data-i18n="yearView">
+    📆 Year View
+  </button>
+</div>
+
+<div class="planner-card">
+  <div id="calendar"></div>
+</div>
+
+        <div id="yearHeader" style="display:none; text-align:center; margin:10px;">
+          <button onclick="changeYear(-1)">⬅</button>
+          <span id="yearTitle"></span>
+          <button onclick="changeYear(1)">➡</button>
+        </div>
+        <div id="yearCalendar" style="display:none;"></div>
+      </div>
+
+      <!-- ================= SETTINGS PAGE ================= -->
+      <div id="settings-page" class="page" style="display:none;">
+
+       
+        <!-- PROFILE -->
+        <div class="card">
+          <h3 data-i18n="profile">Profile</h3>
+          <input type="text" id="username" data-i18n-placeholder="yourName" placeholder="Your name">
+          <input type="email" id="email" data-i18n-placeholder="yourEmail" placeholder="Your email">
+          <button class="save-btn" onclick="saveProfile()">
+  <i class="fa-solid fa-floppy-disk"></i>
+  <span data-i18n="saveProfile">Save Profile</span>
+</button>
+          </div>
+
+        <!-- THEME -->
+<div class="card">
+  <h3 data-i18n="theme">Theme</h3>
+
+  <div class="theme-options">
+    <button class="theme-btn" id="lightThemeBtn" onclick="setTheme('light')">
+      <span class="theme-icon">☀️</span>
+      <span data-i18n="light">Light</span>
+    </button>
+
+    <button class="theme-btn" id="darkThemeBtn" onclick="setTheme('dark')">
+      <span class="theme-icon">🌙</span>
+      <span data-i18n="dark">Dark</span>
+    </button>
+  </div>
+</div>
+       <!-- TASK PREFERENCES -->
+          <div class="card">
+            <h3 data-i18n="taskPreferences">Task Preferences</h3>
+
+            <label for="defaultStatus" data-i18n="defaultTaskStatus">Default Task Status</label>
+            <select id="defaultStatus">
+              <option value="todo" data-i18n="toDo">To Do</option>
+              <option value="doing" data-i18n="doing">Doing</option>
+              <option value="done" data-i18n="done">Done</option>
+            </select>
+
+            <label for="showDates" data-i18n="showTaskDates">Show Task Dates</label>
+            <select id="showDates">
+              <option value="yes" data-i18n="yes">Yes</option>
+              <option value="no" data-i18n="no">No</option>
+            </select>
+
+            <label for="defaultPriority" data-i18n="defaultTaskPriority">Default Task Priority</label>
+            <select id="defaultPriority">
+              <option value="low" data-i18n="low">Low</option>
+              <option value="medium" data-i18n="medium">Medium</option>
+              <option value="high" data-i18n="high">High</option>
+            </select>
+
+            <label for="confirmDelete" data-i18n="confirmBeforeDelete">Confirm Before Delete</label>
+            <select id="confirmDelete">
+              <option value="yes" data-i18n="yes">Yes</option>
+              <option value="no" data-i18n="no">No</option>
+            </select>
+
+            <button class="save-btn" onclick="saveTaskSettings()">
+  <i class="fa-solid fa-floppy-disk"></i>
+  <span data-i18n="savePreferences">Save Preferences</span>
+</button>
+          </div>
+
+          <!-- CALENDAR PREFERENCES -->
+          <div class="card">
+            <h3 data-i18n="calendarPreferences">Calendar Preferences</h3>
+
+            <label for="calendarView" data-i18n="defaultCalendarView">Default Calendar View</label>
+            <select id="calendarView">
+              <option value="dayGridMonth" data-i18n="month">Month</option>
+              <option value="timeGridWeek" data-i18n="week">Week</option>
+              <option value="timeGridDay" data-i18n="day">Day</option>
+              <option value="listYear" data-i18n="yearList">Year List</option>
+            </select>
+
+             <button class="save-btn" onclick="saveCalendarSettings()">
+  <i class="fa-solid fa-floppy-disk"></i>
+  <span data-i18n="saveCalendarSettings">Save Calendar Settings</span>
+</button>  
+
+          </div>
+
+          <!-- LANGUAGE -->
+          <div class="card">
+            <h3 data-i18n="language">Language</h3>
+
+            <label for="language" data-i18n="chooseLanguage">Choose Language</label>
+            <select id="language">
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+              <option value="ar">العربية</option>
+            </select>
+              <button class="save-btn" onclick="saveLanguageSettings()">
+  <i class="fa-solid fa-floppy-disk"></i>
+  <span data-i18n="saveLanguage">Save Language</span>
+</button>
+          
+          </div>
+
+          <!-- DATA -->
+          <div class="card">
+  <h3 data-i18n="data">Data</h3>
+
+  <div class="data-actions">
+
+    <label class="data-btn import-btn">
+  <i class="fa-solid fa-file-import"></i>
+  <span>Import Tasks from Excel</span>
+  <input type="file" id="importExcelInput" accept=".xlsx" hidden>
+</label>
+    <button class="data-btn export-btn" onclick="exportTasks()">
+      <i class="fa-solid fa-file-export"></i>
+      <span data-i18n="exportTasks">Export Tasks</span>
+    </button>
+
+    <button class="data-btn warning-btn" onclick="clearCompletedTasks()">
+      <i class="fa-solid fa-broom"></i>
+      <span data-i18n="clearCompletedTasks">Clear Completed Tasks</span>
+    </button>
+
+    <button class="data-btn danger-btn" onclick="clearTasks()">
+      <i class="fa-solid fa-trash"></i>
+      <span data-i18n="clearAllTasks">Clear All Tasks</span>
+    </button>
+  </div>
+</div>
+
+<!--Help-->
+
+<div class="card">
+  <button class="help-toggle" onclick="toggleHelpBox()">
+    <span data-i18n="helpTitle">How to Use This App</span>
+    <i class="fa-solid fa-chevron-down" id="helpArrow"></i>
+  </button>
+
+  <div class="help-box" id="helpBox" style="display: none;">
+    <p data-i18n="helpIntro">
+      Use the app in 3 simple steps every day:
+    </p>
+
+    <ol class="help-list">
+      <li data-i18n="helpStep1">
+        Check Planner for today’s events and deadlines.
+      </li>
+      <li data-i18n="helpStep2">
+        Move tasks on the Board from Planned to In Progress when you start working on them.
+      </li>
+      <li data-i18n="helpStep3">
+        Move finished tasks to Completed and prepare tomorrow’s tasks before you leave.
+      </li>
+    </ol>
+
+    <p data-i18n="helpTip">
+      Tip: keep no more than 3 tasks in progress at the same time.
+    </p>
+  </div>
+</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+<script src="translations.js"></script>
+<script src="tasks.js"></script>
+<script src="calendar.js"></script>
+<script src="settings.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
