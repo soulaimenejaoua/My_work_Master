@@ -435,20 +435,30 @@
         </div>
 
         <div class="stats">
-          <div class="stat-card">
+
+          <div class="stat-card" onclick="showContent('ai')">
             <h2>AI</h2>
             <span>ML • NLP • LLMs</span>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card" onclick="showContent('ericsson')">
             <h2>Ericsson</h2>
             <span>Telecom AI Experience</span>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card" onclick="showContent('fullstack')">
             <h2>Full-Stack</h2>
             <span>Web & Mobile Systems</span>
           </div>
+
+        </div>
+
+        <div id="dynamic-content" class="card" style="margin-top:30px;">
+          <h3>AI Engineering</h3>
+          <p>
+            Worked on NLP systems, LLM applications, OCR pipelines,
+            machine learning workflows and AI optimization systems.
+          </p>
         </div>
       </div>
 
@@ -732,7 +742,45 @@
       © 2026 Soulaimene Jaoua | AI/ML Engineer & Software Developer
     </p>
   </footer>
+<script>
 
+function showContent(type) {
+
+  const content = document.getElementById("dynamic-content");
+
+  if(type === "ai") {
+    content.innerHTML = `
+      <h3>AI Engineering</h3>
+      <p>
+        Worked on NLP systems, LLM applications, OCR pipelines,
+        machine learning workflows and AI optimization systems.
+      </p>
+    `;
+  }
+
+  if(type === "ericsson") {
+    content.innerHTML = `
+      <h3>Ericsson Experience</h3>
+      <p>
+        Built telecom KPI prediction systems, feature engineering pipelines
+        and AI optimization models during work at Ericsson AB Sweden.
+      </p>
+    `;
+  }
+
+  if(type === "fullstack") {
+    content.innerHTML = `
+      <h3>Full-Stack Development</h3>
+      <p>
+        Developed web applications, backend APIs, mobile apps,
+        SQLite systems and productivity platforms.
+      </p>
+    `;
+  }
+
+}
+
+</script>
 </body>
 </html>
 
